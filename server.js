@@ -155,31 +155,54 @@ app.delete('/todos/:id', function(req, res) {
 
 app.put('/todos/:id', function(req, res) { // UPDATES TODO LIST
 	var todoId = parseInt(req.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
+	// var matchedTodo = _.findWhere(todos, {
+	// 	id: todoId
+	// });
 	var body = _.pick(req.body, 'description', 'completed'); // keep only description and completed on body/post request
 	var validAttributes = {};
 
-	if (!matchedTodo) {
-		return res.status(404).send();
-	}
+	// if (!matchedTodo) {
+	// 	return res.status(404).send();
+	// }
 
-	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-		validAttributes.completed = body.completed;
-	} else if (body.hasOwnProperty('completed')) {
-		return res.status(404).send();
-	}
+	// if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+	// 	validAttributes.completed = body.completed;
+	// } else if (body.hasOwnProperty('completed')) {
+	// 	return res.status(404).send();
+	// }
 
-	if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-		validAttributes.description = body.description;
-	} else if (body.hasOwnProperty('description')) {
-		return res.status(404).send();
-	}
-
+	// if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+	// 	validAttributes.description = body.description;
+	// } else if (body.hasOwnProperty('description')) {
+	// 	return res.status(404).send();
+	// }
 	// HERE WE JUST OVERWRITE OUR ARRAY
-	_.extend(matchedTodo, validAttributes);
-	res.json(matchedTodo);
+	// _.extend(matchedTodo, validAttributes);
+	// res.json(matchedTodo);
+
+	// EXAMPLE DATABASE
+	if (body.hasOwnProperty('completed')) {
+		validAttributes.completed = body.completed; // vlidation is happening in todo.js
+	}
+
+	if (body.hasOwnProperty('description')) {
+		validAttributes.description = body.description;
+	}
+
+	db.todo.findById(todoId).then(function(todo) {
+		if (todo) {
+			todo.update(validAttributes).then(function(todo) {
+				res.json(todo.toJSON()); // success callback, fires if todo.update goes smoothly
+			}, function(e) {
+				res.status(400).json(e);
+			});
+		} else {
+			res.status(404).send();
+		}
+	}, function() {
+		res.status(500).send();
+	});
+
 });
 
 db.sequelize.sync().then(function() {
