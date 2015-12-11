@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-	return sequelize.define('todo', {
+	return sequelize.define('todo', { // create table todo
 		description: {
 			type: DataTypes.STRING,
 			allowNull: false, // validation
