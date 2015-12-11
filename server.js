@@ -17,16 +17,16 @@ app.get('/', function(req, res) {
 
 app.get('/todos', function(req, res) {
 	var queryParams = req.query // e.g todos?completed=true
-	// var filteredTodos = todos;
-	// if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-	// 	filteredTodos = _.where(filteredTodos, {
-	// 		completed: true
-	// 	});
-	// } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-	// 	filteredTodos = _.where(filteredTodos, {
-	// 		completed: false
-	// 	});
-	// }
+		// var filteredTodos = todos;
+		// if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
+		// 	filteredTodos = _.where(filteredTodos, {
+		// 		completed: true
+		// 	});
+		// } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+		// 	filteredTodos = _.where(filteredTodos, {
+		// 		completed: false
+		// 	});
+		// }
 
 	// if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
 	// 	filteredTodos = _.filter(filteredTodos, function(todo) {
@@ -51,7 +51,9 @@ app.get('/todos', function(req, res) {
 		};
 	}
 
-	db.todo.findAll({where: where}).then(function (todos) {
+	db.todo.findAll({
+		where: where
+	}).then(function(todos) {
 		res.json(todos);
 	}, function(e) {
 		res.status(500).send();
@@ -78,7 +80,7 @@ app.get('/todos/:id', function(req, res) {
 	// EXAMPLE USING JSON
 
 	// EXAMPLE USING DATABASE
-	db.todo.findById(todoid).then(function (todo) {
+	db.todo.findById(todoid).then(function(todo) {
 		if (!!todo) {
 			res.json(todo.toJSON());
 		} else {
@@ -120,18 +122,35 @@ app.post('/todos', function(req, res) {
 
 app.delete('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
+	// var matchedTodo = _.findWhere(todos, {
+	// 	id: todoId
+	// });
 
-	if (!matchedTodo) {
-		res.status(404).json({
-			"error": "No ToDo found with provided id"
-		});
-	} else {
-		todos = _.without(todos, matchedTodo);
-		res.json(matchedTodo);
-	}
+	// if (!matchedTodo) {
+	// 	res.status(404).json({
+	// 		"error": "No ToDo found with provided id"
+	// 	});
+	// } else {
+	// 	todos = _.without(todos, matchedTodo);
+	// 	res.json(matchedTodo);
+	// }
+
+	// EXAMPLE DATABASE
+	db.todo.destroy({
+		where: {
+			id: todoId
+		}
+	}).then(function(rowsDeleted) {
+		if (rowsDeleted === 0) {
+			res.status(404).json({
+				error: 'No todo with id'
+			});
+		} else {
+			res.status(204).send(); // with 204 we do not send anything, with 200 we do (e.g. message)
+		}
+	})
+}, function() {
+	res.status(500).send();
 });
 
 app.put('/todos/:id', function(req, res) { // UPDATES TODO LIST
@@ -165,6 +184,6 @@ app.put('/todos/:id', function(req, res) { // UPDATES TODO LIST
 
 db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
-		console.log('express listening on port ' + PORT + '!');  // start server
+		console.log('express listening on port ' + PORT + '!'); // start server
 	});
 }); // sync database

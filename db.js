@@ -9,7 +9,7 @@ if (env === 'production') { // only true when running on Heroku
 
 } else {
 	sequelize = new Sequelize(undefined, undefined, undefined, {
-		'dialect': 'sqlite',
+		'dialect': 'sqlite', // if its not on herok, but local, use sqlite database
 		'storage': __dirname + '/data/dev-todo-api.sqlite'
 	});
 }
