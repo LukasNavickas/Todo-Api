@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
 var bcrypt = require('bcryptjs');
+var middleware = require('./middleware.js')(db);
 
 var app = express();
 var todos = [];
@@ -16,7 +17,7 @@ app.get('/', function(req, res) {
 	res.send('Todo API root');
 });
 
-app.get('/todos', function(req, res) {
+app.get('/todos', middleware.requireAuthentication, function(req, res) { // requireAuthentication called before showing ToDos
 	var queryParams = req.query // e.g todos?completed=true
 		// var filteredTodos = todos;
 		// if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
@@ -61,7 +62,7 @@ app.get('/todos', function(req, res) {
 	})
 });
 
-app.get('/todos/:id', function(req, res) {
+app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoid = parseInt(req.params.id, 10); // always use 10 for normal cases, means nothing...
 	// EXAMPLE USING JSON
 	// var matchedTodo = _.findWhere(todos, {
@@ -95,7 +96,7 @@ app.get('/todos/:id', function(req, res) {
 });
 
 // POST /todos
-app.post('/todos', function(req, res) {
+app.post('/todos', middleware.requireAuthentication, function(req, res) {
 	// EXAMPLE USING JSON
 	var body = _.pick(req.body, 'description', 'completed'); // keep only description and completed on body/post request
 	// // console.log('description: ' + body.description);
@@ -121,7 +122,7 @@ app.post('/todos', function(req, res) {
 	});
 });
 
-app.delete('/todos/:id', function(req, res) {
+app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 	// var matchedTodo = _.findWhere(todos, {
 	// 	id: todoId
@@ -154,7 +155,7 @@ app.delete('/todos/:id', function(req, res) {
 	res.status(500).send();
 });
 
-app.put('/todos/:id', function(req, res) { // UPDATES TODO LIST
+app.put('/todos/:id', middleware.requireAuthentication, function(req, res) { // UPDATES TODO LIST
 	var todoId = parseInt(req.params.id, 10);
 	// var matchedTodo = _.findWhere(todos, {
 	// 	id: todoId
@@ -235,7 +236,7 @@ app.post('/users/login', function(req, res) {
 	
 });
 
-db.sequelize.sync({force: true}).then(function() {
+db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
 		console.log('express listening on port ' + PORT + '!'); // start server
 	});
