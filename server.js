@@ -19,12 +19,16 @@ app.get('/todos', function(req, res) {
 	var filteredTodos = todos;
 
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-		filteredTodos = _.where(filteredTodos, {completed: true});
+		filteredTodos = _.where(filteredTodos, {
+			completed: true
+		});
 	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-		filteredTodos = _.where(filteredTodos, {completed: false});
+		filteredTodos = _.where(filteredTodos, {
+			completed: false
+		});
 	}
 
-	if(queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
 		filteredTodos = _.filter(filteredTodos, function(todo) {
 			return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1; // return objects whose description fields have the word in "q"
 		});
@@ -34,8 +38,10 @@ app.get('/todos', function(req, res) {
 });
 
 app.get('/todos/:id', function(req, res) {
-    var todoid = parseInt(req.params.id, 10); // always use 10 for normal cases, means nothing...
-	var matchedTodo = _.findWhere(todos, {id: todoid}); // give object, where todos.id = :id
+	var todoid = parseInt(req.params.id, 10); // always use 10 for normal cases, means nothing...
+	var matchedTodo = _.findWhere(todos, {
+		id: todoid
+	}); // give object, where todos.id = :id
 	// var matchedTodo;
 
 	// todos.forEach(function(todo) {
@@ -72,10 +78,14 @@ app.post('/todos', function(req, res) {
 
 app.delete('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {id: todoId});
+	var matchedTodo = _.findWhere(todos, {
+		id: todoId
+	});
 
 	if (!matchedTodo) {
-		res.status(404).json({"error": "No ToDo found with provided id"});
+		res.status(404).json({
+			"error": "No ToDo found with provided id"
+		});
 	} else {
 		todos = _.without(todos, matchedTodo);
 		res.json(matchedTodo);
@@ -84,11 +94,13 @@ app.delete('/todos/:id', function(req, res) {
 
 app.put('/todos/:id', function(req, res) { // UPDATES TODO LIST
 	var todoId = parseInt(req.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {id: todoId});
+	var matchedTodo = _.findWhere(todos, {
+		id: todoId
+	});
 	var body = _.pick(req.body, 'description', 'completed'); // keep only description and completed on body/post request
 	var validAttributes = {};
 
-	if(!matchedTodo) {
+	if (!matchedTodo) {
 		return res.status(404).send();
 	}
 
