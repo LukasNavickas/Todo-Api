@@ -40,22 +40,34 @@ app.get('/todos', function(req, res) {
 
 app.get('/todos/:id', function(req, res) {
 	var todoid = parseInt(req.params.id, 10); // always use 10 for normal cases, means nothing...
-	var matchedTodo = _.findWhere(todos, {
-		id: todoid
-	}); // give object, where todos.id = :id
+	// EXAMPLE USING JSON
+	// var matchedTodo = _.findWhere(todos, {
+	// 	id: todoid
+	// }); // give object, where todos.id = :id
 	// var matchedTodo;
-
 	// todos.forEach(function(todo) {
 	// 	if(todoid === todo.id) {
 	// 		matchedTodo = todo;
 	// 	}
 	// });
+	// if (matchedTodo) {
+	// 	res.json(matchedTodo);
+	// } else {
+	// 	res.status(404).send('No match found! Try a lower number');
+	// }
+	// EXAMPLE USING JSON
 
-	if (matchedTodo) {
-		res.json(matchedTodo);
-	} else {
-		res.status(404).send('No match found! Try a lower number');
-	}
+	// EXAMPLE USING DATABASE
+	db.todo.findById(todoid).then(function (todo) {
+		if (!!todo) {
+			res.json(todo.toJSON());
+		} else {
+			res.status(404).send();
+		}
+
+	}, function(e) {
+		res.status(500).send();
+	});
 
 });
 
