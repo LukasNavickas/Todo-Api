@@ -208,7 +208,7 @@ app.put('/todos/:id', function(req, res) { // UPDATES TODO LIST
 app.post('/users', function(req, res) {
 	var body = _.pick(req.body, 'email', 'password'); // just take email and password from the request
 	db.user.create(body).then(function (user) {
-		res.json(user.toJSON());
+		res.json(user.toPublicJSON()); // return only email, createdat, updatedAt
 	}, function(e) {
 		res.status(400).json(e);
 	});
