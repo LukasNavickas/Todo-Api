@@ -116,7 +116,12 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
 
 	// EXAMPLE USING DATABASE
 	db.todo.create(body).then(function(todo) {
-		res.json(todo.toJSON());
+		
+		req.user.addTodo(todo).then(function () {
+			return todo.reload();
+		}).then(function (todo) {
+			res.json(todo.toJSON());
+		});
 	}, function(e) {
 		res.status(404).json(e);
 	});
@@ -207,6 +212,7 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) { // 
 
 });
 
+// register
 app.post('/users', function(req, res) {
 	var body = _.pick(req.body, 'email', 'password'); // just take email and password from the request
 	db.user.create(body).then(function (user) {
@@ -236,7 +242,7 @@ app.post('/users/login', function(req, res) {
 	
 });
 
-db.sequelize.sync().then(function() {
+db.sequelize.sync({force: true}).then(function() {
 	app.listen(PORT, function() {
 		console.log('express listening on port ' + PORT + '!'); // start server
 	});
