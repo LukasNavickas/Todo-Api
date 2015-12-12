@@ -39,7 +39,9 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) { // requ
 	// EXAMPLE JSON
 
 	// EXAMPLE DATABASE
-	var where = {};
+	var where = {
+		userId: req.user.get('id') // items just from the specific user, we have userId in the database
+	};  // re.user.get(:id)
 
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
 		where.completed = true;
@@ -82,7 +84,12 @@ app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	// EXAMPLE USING JSON
 
 	// EXAMPLE USING DATABASE
-	db.todo.findById(todoid).then(function(todo) {
+	db.todo.findOne({
+		where: {
+			id: todoid,
+			userId: req.user.get('id')
+		}
+	}).then(function(todo) {
 		if (!!todo) {
 			res.json(todo.toJSON());
 		} else {
@@ -145,7 +152,8 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	// EXAMPLE DATABASE
 	db.todo.destroy({
 		where: {
-			id: todoId
+			id: todoId,
+			userId: req.user.get('id')
 		}
 	}).then(function(rowsDeleted) {
 		if (rowsDeleted === 0) {
@@ -196,7 +204,12 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) { // 
 		validAttributes.description = body.description;
 	}
 
-	db.todo.findById(todoId).then(function(todo) {
+	db.todo.findOne({
+		where: {
+			id: todoId,
+			userId: req.user.get('id')
+		}
+	}).then(function(todo) {
 		if (todo) {
 			todo.update(validAttributes).then(function(todo) {
 				res.json(todo.toJSON()); // success callback, fires if todo.update goes smoothly
